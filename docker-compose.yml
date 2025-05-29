@@ -1,0 +1,41 @@
+version: "3.7"
+services:
+    odoo18:
+        image: odoo:18.0
+        platform: linux/amd64
+        container_name: odoo18
+        depends_on:
+            - postgresql16
+        tty: true
+        stdin_open: true
+        ports:
+            - "8068:8068"
+        user: root
+        volumes:
+            - odoo18-web-data:/var/lib/odoo
+            - ./custom:/mnt/extra-addons
+            - ./projects:/mnt/projects
+            - ./config:/etc/odoo
+
+        command: odoo -c /etc/odoo/jasana.conf
+        # command: odoo -c /etc/odoo/odoo.conf
+
+        environment:
+            - HOST=postgres
+        # restart: always
+    postgresql16:
+        image: postgres:16
+        container_name: postgres
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_PASSWORD=odoo
+            - POSTGRES_USER=odoo
+            - PGDATA=/var/lib/postgresql/data/pgdata
+        ports:
+            - "5432:5432"
+        volumes:
+            - odoo18-db-data:/var/lib/postgresql/data/pgdata
+
+volumes:
+  odoo18-db-data:
+  odoo18-web-data:
